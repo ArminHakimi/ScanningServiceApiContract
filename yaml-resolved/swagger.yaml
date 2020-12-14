@@ -1,0 +1,174 @@
+---
+swagger: "2.0"
+info:
+  description: "\tyou can extract your invoice data by scanning your documents via this service"
+  version: 1.0.0
+  title: scanning service
+host: virtserver.swaggerhub.com
+basePath: /ArminHakimi/scanningservice/1.0.0
+schemes:
+- https
+security:
+- accessCode:
+  - read
+  - write
+paths:
+  /scanuploads:
+    get:
+      summary: Returns all the uploaded scans
+      produces:
+      - application/json
+      - application/xml
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/scanUpload'
+    post:
+      summary: upload invoices to be scanned
+      description: 'Maximum number of attahcments : 10 ?'
+      consumes:
+      - application/json
+      - application/xml
+      produces:
+      - application/json
+      - application/xml
+      parameters:
+      - in: body
+        name: body
+        description: Document to upload.
+        required: true
+        schema:
+          $ref: '#/definitions/document'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/inline_response_201'
+  /scanuploads/{id}:
+    get:
+      summary: Returns the specific requested scan upload
+      produces:
+      - application/json
+      - application/xml
+      parameters:
+      - name: id
+        in: path
+        description: scan upload id
+        required: true
+        type: string
+        format: guid
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/scanUpload'
+  /scanuploads/{id}/resubmit:
+    put:
+      summary: Resubmit the requested scan upload
+      produces:
+      - application/json
+      - application/xml
+      parameters:
+      - name: id
+        in: path
+        description: scan upload id
+        required: true
+        type: string
+        format: guid
+      responses:
+        "204":
+          description: No content
+securityDefinitions:
+  accessCode:
+    type: oauth2
+    authorizationUrl: https://start.exactonline.nl/api/oauth2/auth
+    tokenUrl: https://start.exactonline.nl/api/oauth2/token
+    flow: accessCode
+    scopes:
+      write: allows modifying resources
+      read: allows reading resources
+definitions:
+  scanUpload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: guid
+      status:
+        type: integer
+        description: 0 = InternalError, 1 = Sent, 2 = Received, 3 = Processed, 4 = PartiallyProcessed, 5 = Resubmit, 6 = Created, 7 = ScanError, 8 = AtScanningService, 9 = Rejected
+      createdDate:
+        type: string
+        format: date
+      modifiedDate:
+        type: string
+        format: date
+      statusReason:
+        type: string
+      totalUploadedPageCount:
+        type: integer
+      totalRecognizedPageCount:
+        type: integer
+      invoices:
+        type: array
+        items:
+          $ref: '#/definitions/scannedItem'
+    description: uploaded scan request
+  scannedItem:
+    type: object
+    properties:
+      documentId:
+        type: string
+        format: guid
+      status:
+        type: integer
+        description: 0 = Recognition Error, 1 = Processing Error, 2 = Created, 3 = Processed
+      statusReason:
+        type: string
+      entryId:
+        type: string
+        format: guid
+      type:
+        type: integer
+        description: 10 = SalesInvice, 20 = PurchaseInvocie
+      recognizedPageCount:
+        type: integer
+      createdDate:
+        type: string
+        format: date
+      modifiedDate:
+        type: string
+        format: date
+    description: combination of type + entryId can be used to query the financialTransaction / TransactionLines
+  document:
+    type: object
+    required:
+    - attachment
+    - documentType
+    properties:
+      documentType:
+        type: integer
+        description: 201 = ScanSalesInvice, 202 = ScanPurchaseInvoice
+      attachment:
+        $ref: '#/definitions/attachment'
+  attachment:
+    type: object
+    required:
+    - attachmentName
+    - content
+    properties:
+      attachmentName:
+        type: string
+      content:
+        type: string
+        format: binary
+  inline_response_201:
+    type: object
+    properties:
+      id:
+        type: string
+        format: guid
