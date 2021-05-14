@@ -29,7 +29,7 @@ paths:
               $ref: '#/definitions/scanUpload'
     post:
       summary: upload invoices to be scanned
-      description: 'Maximum number of attahcments : 10 ?'
+      description: "Maximum number of attahcments : 10 ?"
       consumes:
       - application/json
       - application/xml
@@ -47,7 +47,11 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/inline_response_201'
+            type: object
+            properties:
+              id:
+                type: string
+                format: guid
   /scanuploads/{id}:
     get:
       summary: Returns the specific requested scan upload
@@ -66,7 +70,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/scanUpload'
-  /scanuploads/{id}/resubmit:
     put:
       summary: Resubmit the requested scan upload
       produces:
@@ -100,7 +103,7 @@ definitions:
         format: guid
       status:
         type: integer
-        description: 0 = InternalError, 1 = Sent, 2 = Received, 3 = Processed, 4 = PartiallyProcessed, 5 = Resubmit, 6 = Created, 7 = ScanError, 8 = AtScanningService, 9 = Rejected
+        description: "0 = InternalError, 1 = Sent, 2 = Received, 3 = Processed, 4 = PartiallyProcessed, 5 = Resubmit, 6 = Created, 7 = ScanError, 8 = AtScanningService, 9 = Rejected"
       createdDate:
         type: string
         format: date
@@ -126,7 +129,7 @@ definitions:
         format: guid
       status:
         type: integer
-        description: 0 = Recognition Error, 1 = Processing Error, 2 = Created, 3 = Processed
+        description: "0 = Recognition Error, 1 = Processing Error, 2 = Created, 3 = Processed"
       statusReason:
         type: string
       entryId:
@@ -134,7 +137,7 @@ definitions:
         format: guid
       type:
         type: integer
-        description: 10 = SalesInvice, 20 = PurchaseInvocie
+        description: "10 = SalesInvice, 20 = PurchaseInvocie"
       recognizedPageCount:
         type: integer
       createdDate:
@@ -152,7 +155,7 @@ definitions:
     properties:
       documentType:
         type: integer
-        description: 201 = ScanSalesInvice, 202 = ScanPurchaseInvoice
+        description: "201 = ScanSalesInvice, 202 = ScanPurchaseInvoice"
       attachment:
         $ref: '#/definitions/attachment'
   attachment:
@@ -166,9 +169,3 @@ definitions:
       content:
         type: string
         format: binary
-  inline_response_201:
-    type: object
-    properties:
-      id:
-        type: string
-        format: guid
